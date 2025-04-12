@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive 3D Solar System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="loader">Loading Assets...</div>
+
+    <div id="info">
+        <p><strong>Controls:</strong></p>
+        <p>Drag Mouse: Orbit/Pan</p>
+        <p>Scroll Wheel: Zoom</p>
+        <p>Click Planet: Focus</p>
+        <p>Double Click Background: Focus Sun</p>
+        <p id="focused-planet">Focused: Sun</p>
+    </div>
+
+    <div id="tooltip"></div>
+
+    <div id="speed-controls-container">
+        <button id="toggle-speed-controls">Change Speed ▼</button>
+        <div id="speed-sliders" class="hidden">
+            </div>
+    </div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.163.0/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.163.0/examples/jsm/"
+            }
+        }
+    </script>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>

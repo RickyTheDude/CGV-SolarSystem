@@ -1,0 +1,147 @@
+/* General body styling */
+body {
+    margin: 0;
+    overflow: hidden; /* Prevent scrollbars */
+    font-family: sans-serif;
+    background-color: #000; /* Black background */
+    color: #fff; /* White text */
+}
+
+/* Ensure canvas takes up the full screen */
+canvas {
+    display: block;
+}
+
+/* Styling for the information panel */
+#info {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent black */
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 12px;
+    z-index: 10; /* Ensure info is above canvas */
+}
+
+#info p {
+    margin: 0 0 5px 0; /* Spacing between paragraphs */
+}
+
+/* Styling for the tooltip */
+#tooltip {
+    position: absolute;
+    display: none; /* Hidden by default */
+    background-color: rgba(50, 50, 50, 0.8); /* Dark semi-transparent */
+    color: white;
+    padding: 5px 10px;
+    border-radius: 3px;
+    font-size: 12px;
+    pointer-events: none; /* Tooltip shouldn't block mouse events */
+    z-index: 10; /* Ensure tooltip is above canvas */
+    white-space: nowrap; /* Prevent wrapping */
+}
+
+/* Styling for the loading indicator */
+#loader {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%); /* Center the loader */
+    color: white;
+    font-size: 1.2em;
+    background-color: rgba(0,0,0,0.8);
+    padding: 15px;
+    border-radius: 5px;
+    display: block; /* Show initially */
+    z-index: 11; /* Ensure loader is above everything */
+}
+
+/* Speed Controls Styling */
+#speed-controls-container {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 10px;
+    border-radius: 5px;
+    z-index: 10;
+    max-width: 250px; /* Limit width */
+}
+
+#toggle-speed-controls {
+    background-color: #444;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    width: 100%; /* Make button full width of container */
+    text-align: left;
+    margin-bottom: 5px; /* Add space below button when sliders visible */
+    font-size: 12px; /* Match other UI text */
+}
+
+#toggle-speed-controls:hover {
+    background-color: #555;
+}
+
+#speed-sliders {
+    display: flex;
+    flex-direction: column;
+    gap: 8px; /* Space between sliders */
+    max-height: 300px; /* Limit height and allow scrolling */
+    overflow-y: auto;
+    overflow-x: hidden; /* Hide horizontal scrollbar */
+    padding-right: 5px; /* Space for scrollbar */
+}
+
+/* Hide sliders by default */
+#speed-sliders.hidden {
+    display: none;
+    margin-bottom: 0; /* No space needed when hidden */
+}
+
+.slider-item {
+    display: flex;
+    flex-direction: column; /* Stack label above slider */
+    gap: 3px;
+}
+
+.slider-item label {
+    font-size: 11px;
+    color: #ccc;
+    display: flex;
+    justify-content: space-between; /* Push speed value to the right */
+}
+
+/* Style the speed value span inside the label */
+.slider-item label .speed-value {
+    color: #fff; /* Make speed value white */
+    font-weight: bold;
+    min-width: 35px; /* Ensure space for value */
+    text-align: right;
+}
+
+
+.slider-item input[type="range"] {
+    width: 100%; /* Make slider take full width */
+    cursor: pointer;
+    margin: 0; /* Remove default margin */
+}
+
+/* Simple scrollbar styling for webkit browsers */
+#speed-sliders::-webkit-scrollbar {
+  width: 5px;
+}
+#speed-sliders::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+#speed-sliders::-webkit-scrollbar-thumb {
+  background: #666;
+  border-radius: 3px;
+}
+#speed-sliders::-webkit-scrollbar-thumb:hover {
+  background: #888;
+}
