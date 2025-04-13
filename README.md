@@ -68,5 +68,4 @@ A 3D simulation of our solar system created for educational purposes as part of 
 
 This project is licensed under the **GNU GPL License** - see the LICENSE file for details.
 
-![Thanks for Visiting](https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Milky_Way_Arch_Night_Sky_Panorama.jpg/800px-Milky_Way_Arch_Night_Sky_Panorama.jpg)
 
