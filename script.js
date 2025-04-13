@@ -4,7 +4,6 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-// Removed SSAOPass import
 
 // --- Global Variables & Constants ---
 let camera, scene, renderer, controls, composer, bloomPass;
@@ -12,6 +11,8 @@ let raycaster, mouse, clock;
 let tooltip, loaderElement, focusedPlanetElement;
 let speedControlsContainer, speedSlidersDiv, toggleSpeedButton; // Added speed control elements
 const celestialBodies = []; // To store mesh objects for interaction
+let globalSpeedMultiplier = 1.0; // Global speed multiplier
+let trackedObject = null; // Track which object the camera is following
 
 // Speed range mapping
 const MIN_SPEED = 0.0001; // Minimum possible speed (almost stationary)
@@ -99,8 +100,7 @@ function init() {
     ]);
     scene.background = backgroundTexture;
 
-    // Lighting Removed
-
+    
     // Post Processing (Only Bloom)
     composer = new EffectComposer(renderer);
     const renderPass = new RenderPass(scene, camera);
@@ -328,6 +328,34 @@ function createSpeedControls() {
     if (!speedSlidersDiv) return;
     speedSlidersDiv.innerHTML = ''; // Clear previous sliders if any
 
+    // Create Global Speed Slider
+    const globalSpeedDiv = document.createElement('div');
+    globalSpeedDiv.className = 'slider-item';
+
+    const globalLabel = document.createElement('label');
+    globalLabel.htmlFor = 'global-speed';
+    globalLabel.innerHTML = `Global Speed: <span class="speed-value">${globalSpeedMultiplier.toFixed(2)}</span>`;
+
+    const globalSlider = document.createElement('input');
+    globalSlider.type = 'range';
+    globalSlider.id = 'global-speed';
+    globalSlider.min = 0.1;
+    globalSlider.max = 5.0;
+    globalSlider.step = 0.1;
+    globalSlider.value = globalSpeedMultiplier;
+
+    globalSlider.addEventListener('input', (event) => {
+        globalSpeedMultiplier = parseFloat(event.target.value);
+        const valueSpan = event.target.previousElementSibling.querySelector('.speed-value');
+        if (valueSpan) {
+            valueSpan.textContent = globalSpeedMultiplier.toFixed(2);
+        }
+    });
+
+    globalSpeedDiv.appendChild(globalLabel);
+    globalSpeedDiv.appendChild(globalSlider);
+    speedSlidersDiv.appendChild(globalSpeedDiv);
+
     // Find planet meshes to attach listeners and get initial speeds
     const planetMeshes = celestialBodies.filter(obj => obj.userData.isPlanet);
 
@@ -463,16 +491,20 @@ function onClick(event) {
             let targetPosition = new THREE.Vector3();
             clickedObject.getWorldPosition(targetPosition);
 
-            let focusName = clickedObject.name;
+            // Set the tracked object for continuous following
             if (clickedObject.userData.isMoon && clickedObject.parent?.userData?.isPlanet) {
                  clickedObject.parent.getWorldPosition(targetPosition);
-                 focusName = clickedObject.parent.name;
-                 console.log("Clicked moon, focusing parent:", focusName);
+                 trackedObject = clickedObject.parent;
+                 console.log("Clicked moon, tracking parent:", trackedObject.name);
             } else if (clickedObject.name === 'Sun') {
                 targetPosition.set(0, 0, 0);
+                trackedObject = clickedObject;
+            } else {
+                trackedObject = clickedObject;
             }
 
-            if(focusedPlanetElement) focusedPlanetElement.textContent = `Focused: ${focusName}`;
+            let focusName = trackedObject.name;
+            if(focusedPlanetElement) focusedPlanetElement.textContent = `Tracking: ${focusName}`;
             controls.target.copy(targetPosition);
         }
     }
@@ -486,7 +518,8 @@ function onDoubleClick(event) {
      if (intersects.length === 0) {
          console.log("Double clicked background - Focusing Sun");
          controls.target.set(0, 0, 0);
-         if(focusedPlanetElement) focusedPlanetElement.textContent = `Focused: Sun`;
+         trackedObject = scene.getObjectByName('Sun'); // Set Sun as tracked object
+         if(focusedPlanetElement) focusedPlanetElement.textContent = `Tracking: Sun`;
      }
 }
 
@@ -497,11 +530,18 @@ function animate() {
     const delta = clock.getDelta();
     const elapsedTime = clock.getElapsedTime();
 
+    // Update controls target if tracking an object
+    if (trackedObject) {
+        let targetPosition = new THREE.Vector3();
+        trackedObject.getWorldPosition(targetPosition);
+        controls.target.copy(targetPosition);
+    }
+
     // Animate planet orbits and rotations using potentially updated speeds
     scene.traverse((object) => {
          if (object.userData.isPlanet) {
             const data = object.userData; // data now holds potentially updated speed
-            const angle = elapsedTime * data.speed; // Use speed from userData
+            const angle = elapsedTime * data.speed * globalSpeedMultiplier; // Use speed from userData
             const x = Math.cos(angle) * data.distance;
             const z = Math.sin(angle) * data.distance;
             if(data.group) data.group.position.set(x, 0, z);
@@ -511,7 +551,7 @@ function animate() {
             const moon = object.getObjectByName('Moon');
             if (moon && moon.userData.isMoon) {
                 // Moon speed is still relative to Earth's speed in userData
-                const moonAngle = elapsedTime * moon.userData.speed;
+                const moonAngle = elapsedTime * moon.userData.speed * globalSpeedMultiplier;
                 const moonX = Math.cos(moonAngle) * moon.userData.orbitRadius;
                 const moonZ = Math.sin(moonAngle) * moon.userData.orbitRadius;
                 moon.position.set(moonX, 0, moonZ);
@@ -522,7 +562,6 @@ function animate() {
         }
     });
 
-
     controls.update(); // Update camera controls
 
     // Render the scene using the EffectComposer (now only for Bloom)
@@ -531,3 +570,5 @@ function animate() {
 
 // --- Start the application ---
 init(); // Call initialization function
+// Set Sun as the default tracked object
+trackedObject = scene.getObjectByName('Sun');
