@@ -1,22 +1,24 @@
-# Interactive 3D Solar System Simulation 🔭
+# Interactive 3D Solar System Simulation 🌌
+
 
 A 3D simulation of our solar system created for educational purposes as part of the CGV mini-project. The simulation allows users to explore the solar system with realistic planetary motion and visuals.
 
 ## Features
 
-- Interactive 3D visualization of the solar system with the Sun and 8 planets
-- Realistic orbital mechanics with proper revolution speeds
-- Planet-specific texture mapping and bump mapping
-- Saturn's rings with transparency and proper illumination
-- Dynamic camera controls for exploration
-- Ability to lock-in camera into planets/Sun implemented through Ray Casting
+- 🌌 **Interactive 3D visualization** of the solar system with the Sun and 8 planets
+- ⏱️ **Realistic orbital mechanics** with proper revolution speeds
+- 🌍 **Planet-specific texture and bump mapping**
+- 🍨 **Saturn's rings** with transparency and accurate illumination
+- 📸 **Dynamic camera controls** for immersive exploration
+- ✨ **Raycasting-based camera lock-in** on celestial bodies
+
 
 ## Tech Stack
 
-- Three.js - 3D rendering library for the web
-- WebGL - Web Graphics Library for hardware-accelerated rendering
-- JavaScript ES6+ - Core programming language
-- HTML5/CSS3 - Structure and styling
+- 🔹 **Three.js** - 3D rendering library for the web
+- 🔹 **WebGL** - Hardware-accelerated rendering
+- 🔹 **JavaScript ES6+** - Core programming language
+- 🔹 **HTML5/CSS3** - Structure and styling
 
 ## Computer Graphics Concepts Implemented
 
@@ -28,6 +30,7 @@ A 3D simulation of our solar system created for educational purposes as part of 
 - **Bloom Effects** - Post-processing for light glow around bright objects
 - **Camera Controls** - Orbital camera implementation for scene navigation
 - **Raycasting** - Object selection through screen-to-world ray projection
+
 
 ## Installation and Usage
 
@@ -49,18 +52,21 @@ A 3D simulation of our solar system created for educational purposes as part of 
 
 ## Controls
 
-- **Left-click + drag**: Orbit the camera
-- **Right-click + drag**: Pan the camera
-- **Scroll wheel**: Zoom in/out
-- **Click on a planet**: Focus on that planet
-- **Double-click empty space**: Reset focus to the Sun
+- ← **Left-click + drag**: Orbit the camera
+- → **Right-click + drag**: Pan the camera
+- ↥ **Scroll wheel**: Zoom in/out
+- ✨ **Click on a planet**: Focus on that planet
+- ⭐ **Double-click empty space**: Reset focus to the Sun
 
 ## Acknowledgments
 
-- Planet textures from [Wikimedia](https://commons.wikimedia.org/wiki/Category:Solar_System_Scope)
-- [Three.js library](https://threejs.org/) and community for 3D rendering capabilities
-- Built using [Gemini 2.5 Pro](https://gemini.google.com/app) and [Claude 3.5 Sonnet](https://claude.ai/new) for custom logic 
+- 🌍 Planet textures from [Wikimedia](https://commons.wikimedia.org/wiki/Category:Solar_System_Scope)
+- 📚 [Three.js library](https://threejs.org/) and community for 3D rendering capabilities
+- 🧠 Built using [Gemini 2.5 Pro](https://gemini.google.com/app) and [Claude 3.5 Sonnet](https://claude.ai/new) for custom logic
 
 ## License
 
-This project is licensed under the GNU GPL License - see the LICENSE file for details.
+This project is licensed under the **GNU GPL License** - see the LICENSE file for details.
+
+![Thanks for Visiting](https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Milky_Way_Arch_Night_Sky_Panorama.jpg/800px-Milky_Way_Arch_Night_Sky_Panorama.jpg)
+
