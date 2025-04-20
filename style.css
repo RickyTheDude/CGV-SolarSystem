@@ -15,25 +15,27 @@ canvas {
 /* Help button and container */
 #help-container {
     position: absolute;
-    top: 10px;
-    left: 10px;
+    top: 20px;
+    left: 20px;
     z-index: 10;
 }
 
 #help-button {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background-color: rgba(0, 0, 0, 0.7);
+    height: 40px;
+    padding: 0 20px;
+    border-radius: 30px;
+    background-color: rgba(15, 15, 15, 0.85);
     color: white;
-    border: 2px solid rgba(255, 255, 255, 0.5);
-    font-size: 20px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
     outline: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
 }
 
 #help-button:hover {
@@ -142,14 +144,14 @@ canvas {
 /* Speed Controls Styling */
 #speed-controls-container {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    top: 20px;
+    right: 20px;
     background-color: rgba(15, 15, 15, 0.85);
     padding: 0;
-    border-radius: 8px;
+    border-radius: 30px;
     z-index: 10;
     max-width: 280px;
-    min-width: 240px;
+    min-width: auto;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
 }
 
@@ -157,14 +159,19 @@ canvas {
     background-color: transparent;
     color: white;
     border: none;
-    padding: 12px 15px;
-    border-radius: 8px;
+    padding: 0 20px;
+    height: 40px;
+    border-radius: 30px;
     cursor: pointer;
-    width: 100%;
-    text-align: left;
+    width: auto;
+    text-align: center;
     font-size: 14px;
     font-weight: 600;
     transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
 }
 
 #toggle-speed-controls:hover {
@@ -297,4 +304,52 @@ canvas {
 }
 #speed-sliders::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.3);
+}
+
+/* Playback Controls */
+#playback-controls {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 15px;
+    z-index: 10;
+    background-color: rgba(15, 15, 15, 0.85);
+    padding: 10px 15px;
+    border-radius: 30px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.control-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+.control-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+
+.control-btn:active {
+    transform: scale(0.95);
+}
+
+.control-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
+.hidden {
+    display: none !important;
 }

@@ -10,9 +10,13 @@ let camera, scene, renderer, controls, composer, bloomPass;
 let raycaster, mouse, clock;
 let tooltip, loaderElement, focusedPlanetElement;
 let speedControlsContainer, speedSlidersDiv, toggleSpeedButton; // Added speed control elements
+let pauseResumeBtn, resetBtn, isPaused = false; // Playback control elements
 const celestialBodies = []; // To store mesh objects for interaction
 let globalSpeedMultiplier = 1.0; // Global speed multiplier
 let trackedObject = null; // Track which object the camera is following
+
+// Store initial planet positions and angles for reset
+const initialPlanetState = [];
 
 // Speed range mapping
 const MIN_SPEED = 0.0001; // Minimum possible speed (almost stationary)
@@ -76,6 +80,8 @@ function init() {
     speedControlsContainer = document.getElementById('speed-controls-container');
     speedSlidersDiv = document.getElementById('speed-sliders');
     toggleSpeedButton = document.getElementById('toggle-speed-controls');
+    pauseResumeBtn = document.getElementById('pause-resume-btn');
+    resetBtn = document.getElementById('reset-btn');
 
     // Help button controls
     const helpButton = document.getElementById('help-button');
@@ -92,6 +98,24 @@ function init() {
         closeInfoButton.addEventListener('click', () => {
             infoPanel.classList.add('hidden');
         });
+    }
+
+    // Setup playback controls
+    if (pauseResumeBtn) {
+        // Set initial button state (showing pause icon since simulation starts playing)
+        const playIcon = pauseResumeBtn.querySelector('.play-icon');
+        const pauseIcon = pauseResumeBtn.querySelector('.pause-icon');
+        
+        if (playIcon && pauseIcon) {
+            playIcon.classList.add('hidden');
+            pauseIcon.classList.remove('hidden');
+        }
+        
+        pauseResumeBtn.addEventListener('click', togglePlayPause);
+    }
+    
+    if (resetBtn) {
+        resetBtn.addEventListener('click', resetSimulation);
     }
 
     // Basic Scene Setup
@@ -186,6 +210,12 @@ function createSolarSystem() {
     scene.add(sunMesh);
     celestialBodies.push(sunMesh);
 
+    // Store sun's initial state
+    initialPlanetState.push({
+        name: 'Sun',
+        rotation: { y: 0 }
+    });
+
     // Create Planets
     planetData.forEach(data => {
         const planetGroup = new THREE.Group();
@@ -200,11 +230,19 @@ function createSolarSystem() {
         });
         const planetMesh = new THREE.Mesh(geometry, material);
         planetMesh.name = data.name;
-        planetMesh.userData = { ...data, isPlanet: true, group: planetGroup };
+        planetMesh.userData = { ...data, isPlanet: true, group: planetGroup, orbitAngle: 0 };
 
         planetGroup.add(planetMesh);
         scene.add(planetGroup);
         celestialBodies.push(planetMesh);
+
+        // Store initial planet state for reset
+        initialPlanetState.push({
+            name: data.name,
+            position: { x: data.distance, y: 0, z: 0 },
+            rotation: { y: 0 },
+            orbitAngle: 0
+        });
 
         // Add orbit line using LineSegments instead of RingGeometry
         const orbitPoints = [];
@@ -239,9 +277,18 @@ function createSolarSystem() {
             const moonMesh = new THREE.Mesh(moonGeometry, moonMaterial);
             moonMesh.name = 'Moon';
             // Store moon data - NOTE: Moon speed is relative to Earth's orbit in animation loop
-            moonMesh.userData = { isMoon: true, orbitRadius: data.radius + 1.5, speed: data.speed * 5 };
+            moonMesh.userData = { isMoon: true, orbitRadius: data.radius + 1.5, speed: data.speed * 5, orbitAngle: 0 };
             planetMesh.add(moonMesh);
             moonMesh.position.set(moonMesh.userData.orbitRadius, 0, 0);
+            
+            // Store initial moon state
+            initialPlanetState.push({
+                name: 'Moon',
+                parentName: data.name,
+                position: { x: moonMesh.userData.orbitRadius, y: 0, z: 0 },
+                rotation: { y: 0 },
+                orbitAngle: 0
+            });
         }
 
          // Add Rings for Saturn
@@ -670,51 +717,118 @@ function animate() {
         controls.target.copy(targetPosition);
     }
 
-    // Animate planet orbits and rotations using potentially updated speeds
-    scene.traverse((object) => {
-         if (object.userData.isPlanet) {
-            const data = object.userData; // data now holds potentially updated speed
-            
-            // Initialize orbit angle if not set
-            if (data.orbitAngle === undefined) {
-                data.orbitAngle = 0;
-            }
-            
-            // Update orbit angle based on speed and delta time
-            data.orbitAngle += delta * data.speed * globalSpeedMultiplier;
-            
-            // Calculate position based on current angle
-            const x = Math.cos(data.orbitAngle) * data.distance;
-            const z = Math.sin(data.orbitAngle) * data.distance;
-            if(data.group) data.group.position.set(x, 0, z);
+    // Only update positions if simulation is not paused
+    if (!isPaused) {
+        // Animate planet orbits and rotations using potentially updated speeds
+        scene.traverse((object) => {
+             if (object.userData.isPlanet) {
+                const data = object.userData; // data now holds potentially updated speed
+                
+                // Update orbit angle based on speed and delta time
+                data.orbitAngle += delta * data.speed * globalSpeedMultiplier;
+                
+                // Calculate position based on current angle
+                const x = Math.cos(data.orbitAngle) * data.distance;
+                const z = Math.sin(data.orbitAngle) * data.distance;
+                if(data.group) data.group.position.set(x, 0, z);
 
-            object.rotation.y += delta * 0.1; // Planet self-rotation
+                object.rotation.y += delta * 0.1; // Planet self-rotation
 
-            const moon = object.getObjectByName('Moon');
-            if (moon && moon.userData.isMoon) {
-                // Initialize moon orbit angle if not set
-                if (moon.userData.orbitAngle === undefined) {
-                    moon.userData.orbitAngle = 0;
+                const moon = object.getObjectByName('Moon');
+                if (moon && moon.userData.isMoon) {
+                    // Update moon orbit angle based on speed and delta time
+                    moon.userData.orbitAngle += delta * moon.userData.speed * globalSpeedMultiplier;
+                    
+                    // Calculate moon position based on current angle
+                    const moonX = Math.cos(moon.userData.orbitAngle) * moon.userData.orbitRadius;
+                    const moonZ = Math.sin(moon.userData.orbitAngle) * moon.userData.orbitRadius;
+                    moon.position.set(moonX, 0, moonZ);
+                    moon.rotation.y += delta * 0.5; // Moon self-rotation
                 }
-                
-                // Update moon orbit angle based on speed and delta time
-                moon.userData.orbitAngle += delta * moon.userData.speed * globalSpeedMultiplier;
-                
-                // Calculate moon position based on current angle
-                const moonX = Math.cos(moon.userData.orbitAngle) * moon.userData.orbitRadius;
-                const moonZ = Math.sin(moon.userData.orbitAngle) * moon.userData.orbitRadius;
-                moon.position.set(moonX, 0, moonZ);
-                moon.rotation.y += delta * 0.5; // Moon self-rotation
+            } else if (object.name === 'Sun') {
+                 object.rotation.y += delta * 0.01; // Sun self-rotation
             }
-        } else if (object.name === 'Sun') {
-             object.rotation.y += delta * 0.01; // Sun self-rotation
-        }
-    });
+        });
+    }
 
     controls.update(); // Update camera controls
 
     // Render the scene using the EffectComposer (now only for Bloom)
     composer.render(delta);
+}
+
+// --- Toggle Play/Pause Function ---
+function togglePlayPause() {
+    isPaused = !isPaused;
+    
+    // Update the button icon
+    if (pauseResumeBtn) {
+        const playIcon = pauseResumeBtn.querySelector('.play-icon');
+        const pauseIcon = pauseResumeBtn.querySelector('.pause-icon');
+        
+        if (playIcon && pauseIcon) {
+            if (isPaused) {
+                playIcon.classList.remove('hidden');
+                pauseIcon.classList.add('hidden');
+                pauseResumeBtn.title = "Resume Simulation";
+            } else {
+                playIcon.classList.add('hidden');
+                pauseIcon.classList.remove('hidden');
+                pauseResumeBtn.title = "Pause Simulation";
+            }
+        }
+    }
+}
+
+// --- Reset Simulation Function ---
+function resetSimulation() {
+    console.log("Resetting simulation...");
+    
+    // Reset each celestial body to its initial state
+    scene.traverse((object) => {
+        if (object.userData.isPlanet) {
+            const data = object.userData;
+            const initialState = initialPlanetState.find(state => state.name === object.name);
+            
+            if (initialState) {
+                // Reset orbit angle
+                data.orbitAngle = initialState.orbitAngle;
+                
+                // Reset position (via group)
+                if (data.group) {
+                    data.group.position.set(initialState.position.x, initialState.position.y, initialState.position.z);
+                }
+                
+                // Reset rotation
+                object.rotation.y = initialState.rotation.y;
+                
+                // Reset moon if present
+                const moon = object.getObjectByName('Moon');
+                if (moon) {
+                    const moonInitialState = initialPlanetState.find(state => state.name === 'Moon' && state.parentName === object.name);
+                    if (moonInitialState) {
+                        moon.userData.orbitAngle = moonInitialState.orbitAngle;
+                        moon.position.set(moonInitialState.position.x, moonInitialState.position.y, moonInitialState.position.z);
+                        moon.rotation.y = moonInitialState.rotation.y;
+                    }
+                }
+            }
+        } else if (object.name === 'Sun') {
+            const initialState = initialPlanetState.find(state => state.name === 'Sun');
+            if (initialState) {
+                object.rotation.y = initialState.rotation.y;
+            }
+        }
+    });
+    
+    // Reset camera to initial position if needed
+    camera.position.set(0, 80, 180);
+    controls.target.set(0, 0, 0);
+    
+    // Optionally, unpause the simulation if it was paused
+    if (isPaused) {
+        togglePlayPause();
+    }
 }
 
 // --- Start the application ---
