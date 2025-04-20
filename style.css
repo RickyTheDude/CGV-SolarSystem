@@ -353,3 +353,134 @@ canvas {
 .hidden {
     display: none !important;
 }
+
+/* Planet info panel styles */
+#planet-info-panel {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    width: 320px;
+    background-color: rgba(15, 15, 15, 0.92);
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    z-index: 100;
+    transition: all 0.3s ease;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+#planet-info-panel.hidden {
+    display: none;
+}
+
+.info-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    position: sticky;
+    top: 0;
+    background-color: rgba(10, 10, 10, 0.95);
+    backdrop-filter: blur(4px);
+}
+
+.info-panel-title {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.95);
+}
+
+.info-panel-close {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 28px;
+    line-height: 20px;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.info-panel-close:hover {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.info-panel-content {
+    padding: 15px;
+}
+
+.info-type {
+    font-size: 14px;
+    color: #64B5F6;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.info-description {
+    margin: 0 0 20px 0;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.info-data-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 15px;
+    margin-bottom: 20px;
+}
+
+.info-data-label {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 13px;
+}
+
+.info-data-value {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.facts-title {
+    margin: 5px 0 10px 0;
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.95);
+}
+
+.facts-list {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.facts-list li {
+    margin-bottom: 10px;
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.4;
+}
+
+/* Custom scrollbar for info panel */
+#planet-info-panel::-webkit-scrollbar {
+    width: 8px;
+}
+
+#planet-info-panel::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+}
+
+#planet-info-panel::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+
+#planet-info-panel::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+}
