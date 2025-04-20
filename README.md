@@ -11,6 +11,8 @@ A 3D simulation of our solar system created for educational purposes as part of 
 - 🪐 **Saturn's rings** with transparency and accurate illumination
 - 📸 **Dynamic camera controls** for immersive exploration
 - ✨ **Raycasting-based camera lock-in** on celestial bodies
+- 🔍 **Planet Information Panel**: Displays interesting facts and data about each planet when clicked
+- 🎥 **Advanced Camera Tracking**: Camera follows planets in their orbits, allowing zoom and rotation around them
 
 
 ## Tech Stack
@@ -52,11 +54,13 @@ A 3D simulation of our solar system created for educational purposes as part of 
 
 ## Controls
 
-- ← **Left-click + drag**: Orbit the camera
+- ← **Left-click + drag**: Orbit the camera around the selected planet
 - → **Right-click + drag**: Pan the camera
 - ↥ **Scroll wheel**: Zoom in/out
-- ✨ **Click on a planet**: Focus on that planet
+- ✨ **Click on a planet**: Focus on that planet and enable tracking
 - ⭐ **Double-click empty space**: Reset focus to the Sun
+- 🔄 **Mouse drag while tracking**: Rotate view around the tracked planet
+- 🔍 **Mouse wheel while tracking**: Zoom in/out while following a planet
 
 ## Acknowledgments
 
