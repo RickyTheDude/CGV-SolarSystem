@@ -8,7 +8,7 @@ A 3D simulation of our solar system created for educational purposes as part of 
 - 🌌 **Interactive 3D visualization** of the solar system with the Sun and 8 planets
 - ⏱️ **Realistic orbital mechanics** with proper revolution speeds
 - 🌍 **Planet-specific texture and bump mapping**
-- 🍨 **Saturn's rings** with transparency and accurate illumination
+- 🪐 **Saturn's rings** with transparency and accurate illumination
 - 📸 **Dynamic camera controls** for immersive exploration
 - ✨ **Raycasting-based camera lock-in** on celestial bodies
 
