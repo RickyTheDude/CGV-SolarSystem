@@ -77,6 +77,22 @@ function init() {
     speedSlidersDiv = document.getElementById('speed-sliders');
     toggleSpeedButton = document.getElementById('toggle-speed-controls');
 
+    // Help button controls
+    const helpButton = document.getElementById('help-button');
+    const infoPanel = document.getElementById('info');
+    const closeInfoButton = document.getElementById('close-info');
+    
+    if (helpButton && infoPanel) {
+        helpButton.addEventListener('click', () => {
+            infoPanel.classList.toggle('hidden');
+        });
+    }
+    
+    if (closeInfoButton && infoPanel) {
+        closeInfoButton.addEventListener('click', () => {
+            infoPanel.classList.add('hidden');
+        });
+    }
 
     // Basic Scene Setup
     scene = new THREE.Scene();
@@ -145,7 +161,7 @@ function init() {
             speedSlidersDiv.classList.toggle('hidden');
             // Change button text/symbol
             const isHidden = speedSlidersDiv.classList.contains('hidden');
-            toggleSpeedButton.textContent = `Change Speed ${isHidden ? '▼' : '▲'}`;
+            toggleSpeedButton.textContent = `Speed Controls ${isHidden ? '▼' : '▲'}`;
         });
     }
 }
@@ -326,95 +342,212 @@ function createSolarSystem() {
 // --- ** NEW: Function to Create Speed Controls ** ---
 function createSpeedControls() {
     if (!speedSlidersDiv) return;
-    speedSlidersDiv.innerHTML = ''; // Clear previous sliders if any
-
-    // Create Global Speed Slider
+    speedSlidersDiv.innerHTML = ''; // Clear previous controls if any
+    
+    // Add header (already in HTML)
+    
+    // Create Global Speed Control
     const globalSpeedDiv = document.createElement('div');
-    globalSpeedDiv.className = 'slider-item';
-
-    const globalLabel = document.createElement('label');
-    globalLabel.htmlFor = 'global-speed';
-    globalLabel.innerHTML = `Global Speed: <span class="speed-value">${globalSpeedMultiplier.toFixed(2)}</span>`;
-
-    const globalSlider = document.createElement('input');
-    globalSlider.type = 'range';
-    globalSlider.id = 'global-speed';
-    globalSlider.min = 0.1;
-    globalSlider.max = 5.0;
-    globalSlider.step = 0.1;
-    globalSlider.value = globalSpeedMultiplier;
-
-    globalSlider.addEventListener('input', (event) => {
-        globalSpeedMultiplier = parseFloat(event.target.value);
-        const valueSpan = event.target.previousElementSibling.querySelector('.speed-value');
-        if (valueSpan) {
-            valueSpan.textContent = globalSpeedMultiplier.toFixed(2);
+    globalSpeedDiv.className = 'speed-item';
+    
+    const globalLabel = document.createElement('div');
+    globalLabel.className = 'speed-label';
+    globalLabel.textContent = 'Global';
+    
+    const globalControls = document.createElement('div');
+    globalControls.className = 'speed-controls';
+    
+    const decreaseGlobalBtn = document.createElement('button');
+    decreaseGlobalBtn.className = 'speed-btn';
+    decreaseGlobalBtn.textContent = '-';
+    
+    const globalValueInput = document.createElement('input');
+    globalValueInput.className = 'speed-value';
+    globalValueInput.value = globalSpeedMultiplier.toFixed(2) + 'x';
+    globalValueInput.setAttribute('contenteditable', 'true');
+    globalValueInput.setAttribute('spellcheck', 'false');
+    
+    const increaseGlobalBtn = document.createElement('button');
+    increaseGlobalBtn.className = 'speed-btn';
+    increaseGlobalBtn.textContent = '+';
+    
+    // Add event listeners
+    decreaseGlobalBtn.addEventListener('click', () => {
+        globalSpeedMultiplier = Math.max(0.1, (parseFloat(globalSpeedMultiplier) - 0.1).toFixed(2));
+        globalValueInput.value = globalSpeedMultiplier + 'x';
+    });
+    
+    increaseGlobalBtn.addEventListener('click', () => {
+        globalSpeedMultiplier = Math.min(5.0, (parseFloat(globalSpeedMultiplier) + 0.1).toFixed(2));
+        globalValueInput.value = globalSpeedMultiplier + 'x';
+    });
+    
+    // Add input event for direct editing
+    globalValueInput.addEventListener('blur', function() {
+        // Parse the input value, removing the 'x' suffix if present
+        let newValue = this.value.replace('x', '');
+        newValue = parseFloat(newValue);
+        
+        // Validate the input
+        if (isNaN(newValue)) {
+            // Reset to current value if input is invalid
+            this.value = globalSpeedMultiplier.toFixed(2) + 'x';
+            return;
+        }
+        
+        // Clamp the value between min and max
+        newValue = Math.max(0.1, Math.min(5.0, newValue));
+        globalSpeedMultiplier = parseFloat(newValue.toFixed(2));
+        
+        // Update the display
+        this.value = globalSpeedMultiplier + 'x';
+    });
+    
+    // Handle Enter key press
+    globalValueInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            this.blur(); // Trigger the blur event to validate and update
+            e.preventDefault();
         }
     });
-
+    
+    globalControls.appendChild(decreaseGlobalBtn);
+    globalControls.appendChild(globalValueInput);
+    globalControls.appendChild(increaseGlobalBtn);
+    
     globalSpeedDiv.appendChild(globalLabel);
-    globalSpeedDiv.appendChild(globalSlider);
+    globalSpeedDiv.appendChild(globalControls);
     speedSlidersDiv.appendChild(globalSpeedDiv);
-
-    // Find planet meshes to attach listeners and get initial speeds
+    
+    // Find planet meshes to create controls for
     const planetMeshes = celestialBodies.filter(obj => obj.userData.isPlanet);
-
+    
     planetMeshes.forEach(planetMesh => {
         const planetName = planetMesh.name;
         const currentSpeed = planetMesh.userData.speed;
-
-        // Map current speed to initial slider value
-        const initialSliderValue = Math.round(((currentSpeed - MIN_SPEED) / (MAX_SPEED - MIN_SPEED)) * (SLIDER_MAX - SLIDER_MIN) + SLIDER_MIN);
-
+        
         // Create elements
         const itemDiv = document.createElement('div');
-        itemDiv.className = 'slider-item';
-
-        const label = document.createElement('label');
-        label.htmlFor = `speed-${planetName}`;
-        // Use a span to display the value, allowing easy update
-        label.innerHTML = `${planetName}: <span class="speed-value">${currentSpeed.toFixed(4)}</span>`;
-
-        const slider = document.createElement('input');
-        slider.type = 'range';
-        slider.id = `speed-${planetName}`;
-        slider.min = SLIDER_MIN;
-        slider.max = SLIDER_MAX;
-        slider.step = 1;
-        slider.value = initialSliderValue;
-        slider.dataset.planetName = planetName; // Link slider to planet
-
-        // Add event listener to this specific slider
-        slider.addEventListener('input', (event) => {
-            const sliderValue = parseFloat(event.target.value);
-            const targetPlanetName = event.target.dataset.planetName;
-
-            // Map slider value back to speed
-            const newSpeed = MIN_SPEED + (sliderValue / (SLIDER_MAX - SLIDER_MIN)) * (MAX_SPEED - MIN_SPEED);
-
-            // Find the corresponding planet mesh and update its speed
-            const targetMesh = celestialBodies.find(obj => obj.name === targetPlanetName);
+        itemDiv.className = 'speed-item';
+        
+        const label = document.createElement('div');
+        label.className = 'speed-label';
+        label.textContent = planetName;
+        
+        const controls = document.createElement('div');
+        controls.className = 'speed-controls';
+        
+        const decreaseBtn = document.createElement('button');
+        decreaseBtn.className = 'speed-btn';
+        decreaseBtn.textContent = '-';
+        decreaseBtn.dataset.planetName = planetName;
+        
+        const valueInput = document.createElement('input');
+        valueInput.className = 'speed-value';
+        valueInput.value = currentSpeed.toFixed(4);
+        valueInput.setAttribute('contenteditable', 'true');
+        valueInput.setAttribute('spellcheck', 'false');
+        valueInput.dataset.planetName = planetName;
+        
+        const increaseBtn = document.createElement('button');
+        increaseBtn.className = 'speed-btn';
+        increaseBtn.textContent = '+';
+        increaseBtn.dataset.planetName = planetName;
+        
+        // Add event listeners
+        decreaseBtn.addEventListener('click', () => {
+            // Find the corresponding planet mesh
+            const targetMesh = celestialBodies.find(obj => obj.name === planetName);
             if (targetMesh) {
-                targetMesh.userData.speed = newSpeed;
-                // Update the displayed speed value in the label
-                const valueSpan = event.target.previousElementSibling.querySelector('.speed-value');
-                if (valueSpan) {
-                    valueSpan.textContent = newSpeed.toFixed(4);
-                }
-
-                // Update Moon speed if Earth speed changes (optional, keeps ratio)
-                if (targetPlanetName === 'Earth') {
+                // Calculate new speed (ensure it doesn't go below MIN_SPEED)
+                const newSpeed = Math.max(MIN_SPEED, (targetMesh.userData.speed - 0.001).toFixed(4));
+                targetMesh.userData.speed = parseFloat(newSpeed);
+                
+                // Update the displayed value
+                valueInput.value = newSpeed;
+                
+                // Update Moon speed if Earth speed changes
+                if (planetName === 'Earth') {
                     const moonMesh = targetMesh.getObjectByName('Moon');
                     if (moonMesh) {
-                        moonMesh.userData.speed = newSpeed * 5; // Maintain relative speed
+                        moonMesh.userData.speed = parseFloat(newSpeed) * 5;
                     }
                 }
             }
         });
-
+        
+        increaseBtn.addEventListener('click', () => {
+            // Find the corresponding planet mesh
+            const targetMesh = celestialBodies.find(obj => obj.name === planetName);
+            if (targetMesh) {
+                // Calculate new speed (ensure it doesn't exceed MAX_SPEED)
+                const newSpeed = Math.min(MAX_SPEED, (parseFloat(targetMesh.userData.speed) + 0.001).toFixed(4));
+                targetMesh.userData.speed = parseFloat(newSpeed);
+                
+                // Update the displayed value
+                valueInput.value = newSpeed;
+                
+                // Update Moon speed if Earth speed changes
+                if (planetName === 'Earth') {
+                    const moonMesh = targetMesh.getObjectByName('Moon');
+                    if (moonMesh) {
+                        moonMesh.userData.speed = parseFloat(newSpeed) * 5;
+                    }
+                }
+            }
+        });
+        
+        // Add input event for direct editing
+        valueInput.addEventListener('blur', function() {
+            // Parse the input value
+            const newValue = parseFloat(this.value);
+            const targetPlanetName = this.dataset.planetName;
+            
+            // Validate the input
+            if (isNaN(newValue)) {
+                // Find the mesh to get current value
+                const targetMesh = celestialBodies.find(obj => obj.name === targetPlanetName);
+                if (targetMesh) {
+                    this.value = targetMesh.userData.speed.toFixed(4);
+                }
+                return;
+            }
+            
+            // Find the corresponding planet mesh
+            const targetMesh = celestialBodies.find(obj => obj.name === targetPlanetName);
+            if (targetMesh) {
+                // Clamp the value between MIN_SPEED and MAX_SPEED
+                const clampedValue = Math.max(MIN_SPEED, Math.min(MAX_SPEED, newValue));
+                targetMesh.userData.speed = parseFloat(clampedValue.toFixed(4));
+                
+                // Update the displayed value
+                this.value = clampedValue.toFixed(4);
+                
+                // Update Moon speed if Earth speed changes
+                if (targetPlanetName === 'Earth') {
+                    const moonMesh = targetMesh.getObjectByName('Moon');
+                    if (moonMesh) {
+                        moonMesh.userData.speed = clampedValue * 5;
+                    }
+                }
+            }
+        });
+        
+        // Handle Enter key press
+        valueInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                this.blur(); // Trigger the blur event to validate and update
+                e.preventDefault();
+            }
+        });
+        
         // Append elements
+        controls.appendChild(decreaseBtn);
+        controls.appendChild(valueInput);
+        controls.appendChild(increaseBtn);
+        
         itemDiv.appendChild(label);
-        itemDiv.appendChild(slider);
+        itemDiv.appendChild(controls);
         speedSlidersDiv.appendChild(itemDiv);
     });
 }

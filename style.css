@@ -12,20 +12,102 @@ canvas {
     display: block;
 }
 
-/* Styling for the information panel */
-#info {
+/* Help button and container */
+#help-container {
     position: absolute;
     top: 10px;
     left: 10px;
-    background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent black */
-    padding: 10px;
-    border-radius: 5px;
-    font-size: 12px;
-    z-index: 10; /* Ensure info is above canvas */
+    z-index: 10;
+}
+
+#help-button {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+#help-button:hover {
+    background-color: rgba(50, 50, 50, 0.9);
+    transform: scale(1.05);
+}
+
+/* Styling for the information panel */
+#info {
+    position: absolute;
+    top: 50px;
+    left: 0;
+    background-color: rgba(15, 15, 15, 0.85);
+    padding: 0;
+    border-radius: 8px;
+    font-size: 14px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    min-width: 200px;
+    transform-origin: top left;
+    transition: all 0.3s ease;
+}
+
+#info.hidden {
+    display: none;
+}
+
+.info-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.info-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+#close-info {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 18px;
+    cursor: pointer;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+#close-info:hover {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.info-content {
+    padding: 10px 15px;
 }
 
 #info p {
-    margin: 0 0 5px 0; /* Spacing between paragraphs */
+    margin: 0 0 8px 0; /* Spacing between paragraphs */
+    color: rgba(255, 255, 255, 0.85);
+}
+
+#focused-planet {
+    margin-top: 12px !important;
+    color: rgba(120, 220, 255, 0.9) !important;
+    font-weight: 500;
 }
 
 /* Styling for the tooltip */
@@ -62,72 +144,143 @@ canvas {
     position: absolute;
     top: 10px;
     right: 10px;
-    background-color: rgba(0, 0, 0, 0.7);
-    padding: 10px;
-    border-radius: 5px;
+    background-color: rgba(15, 15, 15, 0.85);
+    padding: 0;
+    border-radius: 8px;
     z-index: 10;
-    max-width: 250px; /* Limit width */
+    max-width: 280px;
+    min-width: 240px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
 }
 
 #toggle-speed-controls {
-    background-color: #444;
+    background-color: transparent;
     color: white;
     border: none;
-    padding: 5px 10px;
-    border-radius: 3px;
+    padding: 12px 15px;
+    border-radius: 8px;
     cursor: pointer;
-    width: 100%; /* Make button full width of container */
+    width: 100%;
     text-align: left;
-    margin-bottom: 5px; /* Add space below button when sliders visible */
-    font-size: 12px; /* Match other UI text */
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s ease;
 }
 
 #toggle-speed-controls:hover {
-    background-color: #555;
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
 #speed-sliders {
     display: flex;
     flex-direction: column;
-    gap: 8px; /* Space between sliders */
-    max-height: 300px; /* Limit height and allow scrolling */
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    max-height: 400px;
     overflow-y: auto;
-    overflow-x: hidden; /* Hide horizontal scrollbar */
-    padding-right: 5px; /* Space for scrollbar */
+    overflow-x: hidden;
+}
+
+.speed-controls-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.speed-controls-header h3 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
 }
 
 /* Hide sliders by default */
 #speed-sliders.hidden {
     display: none;
-    margin-bottom: 0; /* No space needed when hidden */
 }
 
-.slider-item {
+.speed-item {
     display: flex;
-    flex-direction: column; /* Stack label above slider */
-    gap: 3px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.slider-item label {
-    font-size: 11px;
-    color: #ccc;
+.speed-label {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.85);
+    flex: 1;
+}
+
+.speed-controls {
     display: flex;
-    justify-content: space-between; /* Push speed value to the right */
+    align-items: center;
+    gap: 8px;
 }
 
-/* Style the speed value span inside the label */
-.slider-item label .speed-value {
-    color: #fff; /* Make speed value white */
-    font-weight: bold;
-    min-width: 35px; /* Ensure space for value */
-    text-align: right;
-}
-
-
-.slider-item input[type="range"] {
-    width: 100%; /* Make slider take full width */
+.speed-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: none;
+    font-size: 16px;
     cursor: pointer;
-    margin: 0; /* Remove default margin */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.speed-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.speed-btn:active {
+    transform: scale(0.95);
+}
+
+.speed-value {
+    min-width: 60px;
+    width: 60px;
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.07);
+    color: rgba(120, 220, 255, 0.9);
+    font-weight: 500;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 13px;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+    outline: none;
+    font-family: inherit;
+    cursor: text;
+    box-sizing: border-box;
+    appearance: none;
+    -moz-appearance: textfield;
+}
+
+.speed-value::-webkit-inner-spin-button, 
+.speed-value::-webkit-outer-spin-button { 
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.speed-value:hover:not(:focus) {
+    background-color: rgba(255, 255, 255, 0.12);
+}
+
+.speed-value:focus {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-color: rgba(120, 220, 255, 0.4);
+    box-shadow: 0 0 0 1px rgba(120, 220, 255, 0.1);
+}
+
+.speed-value::selection {
+    background-color: rgba(120, 220, 255, 0.3);
 }
 
 /* Simple scrollbar styling for webkit browsers */
@@ -135,13 +288,13 @@ canvas {
   width: 5px;
 }
 #speed-sliders::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 3px;
 }
 #speed-sliders::-webkit-scrollbar-thumb {
-  background: #666;
+  background: rgba(255, 255, 255, 0.2);
   border-radius: 3px;
 }
 #speed-sliders::-webkit-scrollbar-thumb:hover {
-  background: #888;
+  background: rgba(255, 255, 255, 0.3);
 }
