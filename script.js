@@ -541,19 +541,35 @@ function animate() {
     scene.traverse((object) => {
          if (object.userData.isPlanet) {
             const data = object.userData; // data now holds potentially updated speed
-            const angle = elapsedTime * data.speed * globalSpeedMultiplier; // Use speed from userData
-            const x = Math.cos(angle) * data.distance;
-            const z = Math.sin(angle) * data.distance;
+            
+            // Initialize orbit angle if not set
+            if (data.orbitAngle === undefined) {
+                data.orbitAngle = 0;
+            }
+            
+            // Update orbit angle based on speed and delta time
+            data.orbitAngle += delta * data.speed * globalSpeedMultiplier;
+            
+            // Calculate position based on current angle
+            const x = Math.cos(data.orbitAngle) * data.distance;
+            const z = Math.sin(data.orbitAngle) * data.distance;
             if(data.group) data.group.position.set(x, 0, z);
 
             object.rotation.y += delta * 0.1; // Planet self-rotation
 
             const moon = object.getObjectByName('Moon');
             if (moon && moon.userData.isMoon) {
-                // Moon speed is still relative to Earth's speed in userData
-                const moonAngle = elapsedTime * moon.userData.speed * globalSpeedMultiplier;
-                const moonX = Math.cos(moonAngle) * moon.userData.orbitRadius;
-                const moonZ = Math.sin(moonAngle) * moon.userData.orbitRadius;
+                // Initialize moon orbit angle if not set
+                if (moon.userData.orbitAngle === undefined) {
+                    moon.userData.orbitAngle = 0;
+                }
+                
+                // Update moon orbit angle based on speed and delta time
+                moon.userData.orbitAngle += delta * moon.userData.speed * globalSpeedMultiplier;
+                
+                // Calculate moon position based on current angle
+                const moonX = Math.cos(moon.userData.orbitAngle) * moon.userData.orbitRadius;
+                const moonZ = Math.sin(moon.userData.orbitAngle) * moon.userData.orbitRadius;
                 moon.position.set(moonX, 0, moonZ);
                 moon.rotation.y += delta * 0.5; // Moon self-rotation
             }
