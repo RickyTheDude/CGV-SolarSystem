@@ -66,7 +66,6 @@ A 3D simulation of our solar system created for educational purposes as part of 
 
 - 🌍 Planet textures from [Wikimedia](https://commons.wikimedia.org/wiki/Category:Solar_System_Scope)
 - 📚 [Three.js library](https://threejs.org/) and community for 3D rendering capabilities
-- 🧠 Built using [Gemini 2.5 Pro](https://gemini.google.com/app) and [Claude 3.5 Sonnet](https://claude.ai/new) for custom logic
 
 ## License
 
